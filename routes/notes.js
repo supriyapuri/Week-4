@@ -7,12 +7,12 @@ const noteDAO = require('../daos/note');
 
 router.use(async (req, res, next) => {
     if (!req.headers.authorization) {
-        return res.status(401).send('no token available');
+        return res.status(401).send('No Token Available');
     }
     const token  = req.headers.authorization;
-    const user = await noteDAO.validateToken(token);
+    const user = await noteDAO.validToken(token);
     if (!user) {
-        return res.status(401).send('invalid token');
+        return res.status(401).send('Token is invalid');
     } else {
         req.userId = user;
         next();
@@ -39,12 +39,12 @@ router.post("/", async (req, res, next) => {
 
   // get notes for a user
 
-  router.get("/", async (req, res, next) => {
+  router.get("/", async (req, res) => {
     try {
-        const notes = await noteDAO.getNotesByUserId(req.userId);
+        const notes = await noteDAO.getAllByUserId(req.userId);
         res.json(notes);
-    } catch(e) {
-          res.status(500).send(e.message);
+    } catch(error) {
+          res.status(500).send(error.message);
         
      }
     
@@ -54,20 +54,20 @@ router.post("/", async (req, res, next) => {
 //get note by Id
 
 
-router.get("/:id", async (req, res, next) => {
+router.get("/:id", async (req, res) => {
     try{
         const notes = await noteDAO.getNoteById(req.params.id, req.userId);
     if (notes) {
       res.json(notes);
     } else {
-      res.status(404).send('notes not found');
+      res.status(404).send('Notes not found');
     }
 
-    } catch(e) {
-        if (e instanceof noteDAO.BadDataError) {
-          res.status(400).send(e.message);
+    } catch(error) {
+        if (error instanceof noteDAO.BadDataError) {
+          res.status(400).send(error.message);
         } else {
-          res.status(500).send(e.message);
+          res.status(500).send(error.message);
         }
       }
     

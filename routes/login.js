@@ -10,14 +10,14 @@ const userDAO = require('../daos/user');
 
 router.post("/logout", async (req, res, next) => {
     if (!req.headers.authorization) {
-        return res.status(401).send('Missing token');
+        return res.status(401).send('No token available');
     }
     try {
-        const success = await userDAO.logout(req.headers.authorization);
-        if (success) {
-            res.status(200).send('logout successful')
+        const userLogout = await userDAO.logout(req.headers.authorization);
+        if (userLogout) {
+            res.status(200).send('User has logged out')
         } else {
-            res.status(401).send('Invalid Token')
+            res.status(401).send('Token is invalid')
         }
     } catch(e) {
           res.status(500).send(e.message);
@@ -37,8 +37,8 @@ router.post('/password', async (req, res) =>{
         try {
             const token = req.headers.authorization;
             const password = req.body.password;
-            const success = await userDAO.changePassword(token, password);
-            if (success) {
+            const changePass = await userDAO.changePassword(token, password);
+            if (changePass) {
 	                res.status(200).send('Password changed');
 	            } else {
 	                res.status(401).send('Password not changed');
@@ -49,11 +49,12 @@ router.post('/password', async (req, res) =>{
 	    }
 });
 	
-// middleware
+// checking for email and password
 
 router.use(async (req, res, next) => {
     if (!req.body.email || JSON.stringify(req.body.email) === '{}') {
         res.status(400).send('Email Required');
+
     } else if (!req.body.password || JSON.stringify(req.body.password) === '{}') {
         res.status(400).send('Password Required');
     } else {
@@ -91,9 +92,9 @@ router.post("/signup", async (req, res) => {
 
 router.post("/", async (req, res, next) => {
     try {
-        const success = await userDAO.login(req.body);
-        if (success) {
-            res.body = success ;
+        const userLogin = await userDAO.login(req.body);
+        if (userLogin) {
+            res.body = userLogin;
             res.status(200).json(res.body);  
         } else {
             res.status(401).send('Login Failed');

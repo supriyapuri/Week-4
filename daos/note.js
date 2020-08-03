@@ -9,7 +9,7 @@ const User = require('../models/user');
  module.exports = {};
 
 
-module.exports.validateToken = async (auth) =>{
+module.exports.validToken = async (auth) =>{
    const currToken = auth.split(' ')[1];
    const token = await Token.findOne({token : currToken})
        if (!token){
@@ -25,7 +25,7 @@ module.exports.createNote = async(textData, userId) => {
     return NewNote;
 };
     
-module.exports.getNotesByUserId = async (userId) => {
+module.exports.getAllByUserId = async (userId) => {
     const notes = await Note.find({ userId : userId });
     return notes;
 };
