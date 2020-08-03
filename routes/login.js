@@ -13,27 +13,24 @@ router.post("/logout", async (req, res, next) => {
         return res.status(401).send('Missing token');
     }
     try {
-        const logout = await userDAO.logout(req.headers.authorization);
-        if (logout) {
+        const success = await userDAO.logout(req.headers.authorization);
+        if (success) {
             res.status(200).send('logout successful')
         } else {
             res.status(401).send('Invalid Token')
         }
     } catch(e) {
-        // if (e instanceof userDAO.BadDataError) {
-        //   res.status(400).send(e.message);
-        // } else {
           res.status(500).send(e.message);
         }
-    //   }
+ 
 });
 
 // password change
 
 router.post('/password', async (req, res) =>{
     if (!req.headers.authorization) {
-        return res.status(401).send('Missing token');
-    
+        return res.status(401).send('Token not available');
+        
     } else if (!req.body.password || JSON.stringify(req.body.password) === '{}') {
         res.status(400).send('Password required');
     } else {
@@ -42,21 +39,16 @@ router.post('/password', async (req, res) =>{
             const password = req.body.password;
             const success = await userDAO.changePassword(token, password);
             if (success) {
-                res.status(200).send('Password changed');
-            }
-
-        } catch(e) {
-            // if (e instanceof userDAO.BadDataError) {
-            //   res.status(400).send(e.message);
-            // } else {
-              res.status(500).send(e.message);
-            }
-        //   }
-    }
-
-
+	                res.status(200).send('Password changed');
+	            } else {
+	                res.status(401).send('Password not changed');
+	            }
+	        } catch (error) {
+	            res.status(500).send(error.message);    
+	        }
+	    }
 });
-
+	
 // middleware
 
 router.use(async (req, res, next) => {
@@ -90,40 +82,26 @@ router.post("/signup", async (req, res) => {
         }
            
     } catch(e) {
-        // if (e instanceof userDAO.BadDataError) {
-        //   res.status(400).send(e.message);
-        // } else {
           res.status(500).send(e.message);
         }
-    //   }
+
 });
 
 // login 
 
 router.post("/", async (req, res, next) => {
     try {
-        const login = await userDAO.login(req.body);
-        if (login) {
-            res.body = login ;
+        const success = await userDAO.login(req.body);
+        if (success) {
+            res.body = success ;
             res.status(200).json(res.body);  
         } else {
             res.status(401).send('Login Failed');
         }           
     } catch(e) {
-        // if (e instanceof userDAO.BadDataError) {
-        //   res.status(400).send(e.message);
-        // } else {
           res.status(500).send(e.message);
-        // }
-      }
+        }
+      
 });
-
-
-
-
-
-
-
-
 
 module.exports = router;

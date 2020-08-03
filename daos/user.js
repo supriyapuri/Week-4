@@ -1,29 +1,19 @@
-
+const mongoose = require('mongoose');
 const User = require('../models/user');
 const Token = require('../models/token')
 
 const bcrypt = require('bcryptjs');
+
+const salt = 10;
 let uuid = require('uuid-random');
 
 
-
-
-const salt =  bcrypt.genSalt(10);
-
 module.exports = {};
-
-// module.exports.create = (userData) => {
-//     return User.create(userData);
-//   }
-
-// module.exports.getByEmail = (userData) => {
-//     return User.findOne({email: userData.email});
-// }
 
 
 module.exports.signUp = async (userData) => {
 
-  const  user = await User.findOne({ email : userData.email });
+  let  user = await User.findOne({ email : userData.email });
       if (user) {
           return false;
       } else {
@@ -55,10 +45,9 @@ module.exports.signUp = async (userData) => {
 
 
       const validPass = await bcrypt.compare(userData.password, user.password);
-      if (!validPass ){
-                return  res.status(400).send('Login Failed');
+      if (validPass == false ){
+                return  false;
        } else{
-
           const newToken = await Token.create({ token: uuid(), userId : user._id });
           return newToken; 
       }
@@ -96,11 +85,4 @@ module.exports.changePassword = async (auth, password) => {
     }
       
 };
-
-
-
-// class BadDataError extends Error {};
-// module.exports.BadDataError = BadDataError;
-
-
 
